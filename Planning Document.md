@@ -15,7 +15,7 @@ The requested party would like to reduce food waste. The program will help track
 | Name           | Role    |
 | --------       | ------- |
 | Bobby Houston  | Lead    |
-| Dp             | Reviewer|
+| Deepti         | Reviewer|
 # 2. Introduction
 ## Background information on the problem or need.
 Per the Missouri of Department of Natural Resources Food Waste 30 - 40% of all available food in the United States goes uneaten each year, at a cost of over $161 billion every year. 
@@ -27,14 +27,14 @@ This Document will cover the creation of a program that will help users use a ca
 ## Definitions and terminology.
 ### Definitions
 | Term           | Description    |
-| --------       | ------- |
-| Bobby Houston  | Lead    |
-| Dp             | Reviewer|
+| --------       | -------        |
+|  |        |
+|  |        |
 ### Acronym
 | Acronym        | Words that makeup the acronym    |
 | --------       | ------- |
 | ONNX           | Open Neural Network Exchange    |
-| Dp             | Reviewer|
+
 
 # 3. Problem Statement
 ## Detailed description of the problem or challenge.
@@ -97,6 +97,8 @@ Docker
 ## User manuals, technical guides, and additional resources.
 # 12. Sources Used
 
+## Data Used
+https://www.kaggle.com/datasets/kritikseth/fruit-and-vegetable-image-recognition/data
 
 
 
