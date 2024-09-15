@@ -2,3 +2,4 @@
 /.venv
 /Images
 *.pyc
+*.mwb
