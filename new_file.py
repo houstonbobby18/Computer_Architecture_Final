@@ -1,18 +1,27 @@
-import os
 import time
 
-def detect_new_files(folder_path):
-    # Get the list of files in the folder
-    files = set(os.listdir(folder_path))
-    # Filter out only the files with .jpg extension
-    while True:
-        new_files = set(filter(lambda x: x.endswith(".jpg"), os.listdir(folder_path)))
-        # Get the new files
-        new_files = new_files - files
-        if new_files:
-            return new_files
-        time.sleep(1)
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.observers import Observer
 
-if __name__ == "__main__":
-    new_files = detect_new_files("new_files")
-    print(new_files)
+from inferencing import run_model
+
+
+class MyEventHandler(FileSystemEventHandler):
+    def on_any_event(self, event: FileSystemEvent) -> None:
+        if event.event_type == "created":
+            print(f"Event type: {event.event_type}  path : {event.src_path}")
+            time.sleep(1)
+            fruit = run_model(event.src_path)
+            print(f"Predicted fruit is: {fruit}")
+
+
+event_handler = MyEventHandler()
+observer = Observer()
+observer.schedule(event_handler, "./new_files", recursive=True)
+observer.start()
+try:
+    while True:
+        time.sleep(1)
+finally:
+    observer.stop()
+    observer.join()

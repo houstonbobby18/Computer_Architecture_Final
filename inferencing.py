@@ -49,10 +49,9 @@ classes = ['apple',
 # Load the model
 model = keras.models.load_model("model.keras")
 
-
-
-def preprocess_image(img    ):
+def preprocess_image(img_path):
     # Resize the image
+    img = PIL.Image.open(img_path)
     img = img.resize((180, 180))
     img_array = keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)
@@ -65,12 +64,14 @@ def inferencing(img_array):
     fruit = classes[np.argmax(predictions[0])]
     return fruit
 
+def run_model(img_path):
+    img_array = preprocess_image(img_path)
+    fruit = inferencing(img_array)
+    return fruit
+
 if __name__ == "__main__":
     # Load the image
-    img = PIL.Image.open("test.jpg")
-    img_array = preprocess_image(img)
+    img_path = r"./new_files/test.jpg"
+    img_array = preprocess_image(img_path)
     fruit = inferencing(img_array)
-
     print(f"Predicted fruit is: {fruit}")
-
-
