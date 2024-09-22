@@ -1,30 +1,25 @@
 import time
+import os
 
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-import fruit_duration
+from fruit_duration import fruit_table
 import fruit_inventory
 import inferencing
 
-def update_databases(file_path):
-    print("Running inference...")
-    start_time = time.time()
+def preform_inference(file_path):
+    print(f"Running inference on {file_path}")
     fruit_name = inferencing.run_model(file_path)
-    print(f"Inference took {time.time() - start_time} seconds")
     print(f"Detected fruit: {fruit_name}")
-    # if input is not y ask for real fruit name
     real_fruit = input("Is the detected fruit correct? (y/n): ")
     if real_fruit == 'n':
         real_fruit = input("What is the real fruit name?: ")
-    fruit_inventory
-    exp_fruit_date = fruit_duration.Fruit('apple')
-    exp_fruit_date = exp_fruit_date.counter_storage
-    fruit_inventory.connect()
-    fruit_inventory.add_item(file_path, exp_fruit_date, fruit_name, real_fruit)
-    print("Item added to inventory")
+    else:
+        real_fruit = fruit_name
+    return fruit_name, real_fruit
 
-
+    
 class FruitEventHandler(FileSystemEventHandler):
     def __init__(self):
         super().__init__()
@@ -40,9 +35,13 @@ class FruitEventHandler(FileSystemEventHandler):
 def main():
     observer = Observer()
     event_handler = FruitEventHandler()
+    if not os.path.exists("./images_processed"):
+        os.makedirs("./images_processed")
     observer.schedule(event_handler, "./images_processed", recursive=False)
     observer.start()
     queue = []
+    fruit_duration_table = fruit_table()
+    print(fruit_duration_table.get_columns())
     try:
         while True:
             queue.extend(event_handler.queue)
@@ -50,7 +49,25 @@ def main():
             time.sleep(1)
             if len(queue) > 0:
                 file_path = queue.pop(0)
-                update_databases(file_path)
+                fruit_name, real_fruit = preform_inference(file_path)
+                real_fruit = "apple"
+                delta = fruit_duration_table.find_fruit_duration(real_fruit)
+                msg = f"How will you store the {real_fruit}?"
+                print(msg)
+                # 1 for counter, 2 for pantry, 3 for fridge, 4 for freezer
+                print("1. Counter")
+                print("2. Pantry")
+                print("3. Fridge")
+                print("4. Freezer")
+                storage = input("Enter a number: ")
+                fruit_duration = fruit_duration_table.get_duration_values(real_fruit)[int(storage)]
+                print(f"Adding {real_fruit} to inventory with expiration date of {fruit_duration} days")
+                
+                
+                
+
+                
+
     except KeyboardInterrupt:
         observer.stop()
     observer.join()

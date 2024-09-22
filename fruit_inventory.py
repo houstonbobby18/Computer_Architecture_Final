@@ -2,9 +2,6 @@ import sqlite3
 import os
 import time
 
-
-
-
 def create_table(database_name):
     if os.path.exists(database_name):
         return
@@ -15,19 +12,15 @@ def create_table(database_name):
     conn.commit()
     conn.close()
 
-
-
 database_name = 'inventory.db'
 print(f"Loading {database_name} database...")
 if not os.path.exists(database_name):
     create_table()
 print(f"{database_name} database loaded")
 
-
 def connect():
    conn = sqlite3.connect(f'{database_name}.db')
    c = conn.cursor()
-
 
 def get_unixtime():
     return int(time.time())
@@ -37,8 +30,6 @@ def convert_unixtime_to_date(unixtime):
 
 def add_days_to_unixtime(unixtime, days):
     return unixtime + (days * 86400)
-
-
 
 def add_item(picture_name, expiration_date_delta, name, real_fruit):
     current_time = get_unixtime()
@@ -88,5 +79,3 @@ def get_items_by_name(name):
     items = c.fetchall()
     conn.close()
     return items
-
-

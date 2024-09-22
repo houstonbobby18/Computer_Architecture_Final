@@ -1,63 +1,50 @@
 import sqlite3
 
-databese_name = 'fruits_duration'
-# Load the database
-print(f"Loading {databese_name}.db database...")
-connectiion = sqlite3.connect(f'{databese_name}.db')
-cursor = connectiion.cursor()
-print(f"{databese_name}.db database loaded")
-
-def connect():
-        connectiion = sqlite3.connect(f'{databese_name}.db')
-        cursor = connectiion.cursor()
-class Fruit:
-    def __init__(self, fruit):
-        self.fruit = fruit.lower()
-        try:
-            self.fruit_data = Fruit.get_fruit(fruit.lower())
-            self.counter_storage = Fruit.get_counter_storage(self.fruit_data)
-            self.panty_storage = Fruit.get_panty_storage(self.fruit_data)
-            self.refrigerator_storage = Fruit.get_refrigerator_storage(self.fruit_data)
-            self.freezer_storage = Fruit.get_freezer_storage(self.fruit_data)
-            self.notes = Fruit.get_notes(self.fruit_data)
-        except:
-            raise ValueError(f"{fruit} is not in the {databese_name}.db database")
-
-    def get_fruit(fruit):
-        query = f"SELECT * FROM fruits_duration WHERE Fruit = '{fruit}'"
-        cursor.execute(query)
-        return cursor.fetchall()
-
-    def get_counter_storage(fruit):
-        days = int(fruit[0][3])
-        return days
-
-    def get_panty_storage(fruit):
-        days = int(fruit[0][4])
-        return days
-
-    def get_refrigerator_storage(fruit):
-        days = int(fruit[0][5])
-        return days
-
-    def get_freezer_storage(fruit):
-        days = int(fruit[0][6])
-        return days
-
-    def get_notes(fruit):
-        notes = fruit[0][7]
-        if notes == 'None':
-            return None
+class fruit_table:
+    def __init__(self):
+        self.database_name = 'fruits_duration'
+        self.conn = sqlite3.connect(f'{self.database_name}.db')
+        self.cursor = self.conn.cursor()
+        
+    def get_all_fruits(self):
+        self.cursor.execute('SELECT * FROM fruits_duration')
+        return self.cursor.fetchall()
+    
+    def get_columns(self):
+        self.cursor.execute('PRAGMA table_info(fruits_duration)')
+        return self.cursor.fetchall()
+    
+    def find_fruit(self, fruit):
+        self.cursor.execute('SELECT * FROM fruits_duration WHERE fruit = ?', (fruit,))
+        fruit_row = self.cursor.fetchall()
+        if len(fruit_row) == 0:
+            return 'Fruit not found'
         else:
-            return notes
-    
-    def __str__(self):
-        return f"Fruit: {self.fruit}\nCounter Storage: {self.counter_storage}\nPanty Storage: {self.panty_storage}\nRefrigerator Storage: {self.refrigerator_storage}\nFreezer Storage: {self.freezer_storage}\nNotes: {self.notes}"
-    
-if __name__ == "__main__":
-    fruit = Fruit("apple")
-    print(fruit)
-    try:
-        fruit = Fruit("beef")
-    except ValueError as e:
-        print(e)
+            return fruit_row
+        
+    def find_fruit_duration(self, fruit_name):
+        fruit_row = self.find_fruit(fruit_name.lower())
+        if fruit_row == 'Fruit not found':
+            return 'Fruit not found'
+        else:
+            fruit_values = fruit_row[0][3:-1]
+            fruit_means = ["Days on Counter", "Days in Pantry", "Days in Fridge", "Days in Freezer"]
+            fruit_duration = dict(zip(fruit_means, fruit_values))
+            return fruit_duration
+        
+    def get_duration_values(self, fruit_name):
+        fruit_row = self.find_fruit(fruit_name.lower())
+        if fruit_row == 'Fruit not found':
+            return 'Fruit not found'
+        else:
+            fruit_values = fruit_row[0][3:-1]
+            return fruit_values
+        
+if __name__ == '__main__':
+    fruit = fruit_table()
+    #print(fruit.get_all_fruits())
+    print(fruit.get_columns())
+    print(fruit.find_fruit('apple'))
+    print(fruit.find_fruit_duration('apple'))
+    print(fruit.get_duration_values('apple'))
+    fruit.conn.close()
