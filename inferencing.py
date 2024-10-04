@@ -69,6 +69,11 @@ def run_model(img_path):
     fruit = inferencing(img_array)
     return fruit
 
+def class_example_inference(img_array):
+    predictions = model.predict(img_array)
+    return predictions
+    
+
 if __name__ == "__main__":
     # Load the image
     img_path = r"./new_files/test.jpg"

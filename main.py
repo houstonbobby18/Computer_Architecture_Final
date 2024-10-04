@@ -19,7 +19,7 @@ def preform_inference(file_path):
         real_fruit = fruit_name
     return fruit_name, real_fruit
 
-    
+
 class FruitEventHandler(FileSystemEventHandler):
     def __init__(self):
         super().__init__()
@@ -41,7 +41,7 @@ def main():
     observer.start()
     queue = []
     fruit_duration_table = fruit_table()
-    print(fruit_duration_table.get_columns())
+    fruit_inventory_table, fruit_inventory_table_conn = fruit_inventory.connect_database()
     try:
         while True:
             queue.extend(event_handler.queue)
@@ -50,7 +50,6 @@ def main():
             if len(queue) > 0:
                 file_path = queue.pop(0)
                 fruit_name, real_fruit = preform_inference(file_path)
-                real_fruit = "apple"
                 delta = fruit_duration_table.find_fruit_duration(real_fruit)
                 msg = f"How will you store the {real_fruit}?"
                 print(msg)
@@ -62,15 +61,15 @@ def main():
                 storage = input("Enter a number: ")
                 fruit_duration = fruit_duration_table.get_duration_values(real_fruit)[int(storage)]
                 print(f"Adding {real_fruit} to inventory with expiration date of {fruit_duration} days")
-                
-                
-                
-
-                
+                id_added = fruit_inventory.add_fruit(fruit_inventory_table, fruit_inventory_table_conn, file_path, fruit_duration, fruit_name, real_fruit)
+                print(f"Fruit added with ID: {id_added}")
 
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
+    inventory = fruit_inventory.get_all_fruits(fruit_inventory_table, fruit_inventory_table_conn)
+    for fruit in inventory:
+        print(fruit)
 
 
 if __name__ == "__main__":
@@ -80,8 +79,3 @@ if __name__ == "__main__":
     # Test Fruit Duration
     main()
     print("Program stopped")
-    
-
-'''
-
-'''

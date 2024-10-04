@@ -2,80 +2,58 @@ import sqlite3
 import os
 import time
 
-def create_table(database_name):
-    if os.path.exists(database_name):
-        return
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE inventory
-                 (id INTEGER PRIMARY KEY, name TEXT, date_added INTEGER, expiration_date INTEGER, picture_name TEXT, real_fruit TEXT)''')
+def create_database():
+    '''
+    Database is created with ID, Picture_Name, Exp_Date, Predicted_Fruit, Real_Fruit, and Date_Added columns
+    '''
+    if os.path.exists('fruits_inventory.db'):
+        return 
+    conn = sqlite3.connect('fruits_inventory.db')
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE fruits_inventory (ID INTEGER PRIMARY KEY AUTOINCREMENT, Picture_Name TEXT, Exp_Date TEXT, Predicted_Fruit TEXT, Real_Fruit TEXT, Date_Added TEXT)')
     conn.commit()
     conn.close()
 
-database_name = 'inventory.db'
-print(f"Loading {database_name} database...")
-if not os.path.exists(database_name):
-    create_table()
-print(f"{database_name} database loaded")
+def connect_database():
+    '''
+    Connects to the database
+    '''
+    conn = sqlite3.connect('fruits_inventory.db')
+    cursor = conn.cursor()
+    return conn, cursor
 
-def connect():
-   conn = sqlite3.connect(f'{database_name}.db')
-   c = conn.cursor()
+def add_fruit(conn, cursor, picture_name, exp_date, predicted_fruit, real_fruit):
+    '''
+    Adds a fruit to the database and returns the ID of the fruit added
+    '''
+    date_added = time.strftime('%Y-%m-%d %H:%M:%S') 
+    cursor.execute('INSERT INTO fruits_inventory (Picture_Name, Exp_Date, Predicted_Fruit, Real_Fruit, Date_Added) VALUES (?, ?, ?, ?, ?)', (picture_name, exp_date, predicted_fruit, real_fruit, date_added))
 
-def get_unixtime():
-    return int(time.time())
-
-def convert_unixtime_to_date(unixtime):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(unixtime))
-
-def add_days_to_unixtime(unixtime, days):
-    return unixtime + (days * 86400)
-
-def add_item(picture_name, expiration_date_delta, name, real_fruit):
-    current_time = get_unixtime()
-    expiration_date = add_days_to_unixtime(current_time, expiration_date_delta)
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute("INSERT INTO inventory (name, date_added, expiration_date, picture_name, real_fruit) VALUES (?, ?, ?, ?, ?)", (name, 0, current_time, expiration_date, picture_name, real_fruit))
     conn.commit()
-    conn.close()
+    # Gets the ID
+    cursor.execute('SELECT ID FROM fruits_inventory WHERE Picture_Name = ?', (picture_name,))
+    id = cursor.fetchall()[0][0]
+    return id
 
-def get_item(id):
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute("SELECT * FROM inventory WHERE id=?", (id,))
-    item = c.fetchone()
-    conn.close()
-    return item
+def pop_fruit(conn, cursor, id):
+    '''
+    Deletes the most recent fruit from the database
+    '''
+    cursor.execute('DELETE FROM fruits_inventory WHERE ID = ?', (id,))
+    conn.commit()
+    return 0
+    
+def get_all_fruits(conn, cursor):
+    '''
+    Returns all the fruits in the database
+    '''
+    cursor.execute('SELECT * FROM fruits_inventory')
+    return cursor.fetchall()
 
-def get_all_items():
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute("SELECT * FROM inventory")
-    items = c.fetchall()
-    conn.close()
-    return items
+if __name__ == '__main__':
+    # Connect to the database
+    create_database()
+    conn, cursor = connect_database()
 
-def get_expired_items():
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute("SELECT * FROM inventory WHERE expiration_date < ?", (get_unixtime(),))
-    items = c.fetchall()
-    conn.close()
-    return items
 
-def get_expiring_items(days):
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute("SELECT * FROM inventory WHERE expiration_date < ?", (add_days_to_unixtime(get_unixtime(), days),))
-    items = c.fetchall()
-    conn.close()
-    return items
 
-def get_items_by_name(name):
-    conn = sqlite3.connect(database_name)
-    c = conn.cursor()
-    c.execute("SELECT * FROM inventory WHERE name=?", (name,))
-    items = c.fetchall()
-    conn.close()
-    return items
