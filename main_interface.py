@@ -27,7 +27,7 @@ Objectives of this GUI:
 -Get the expiration date of the fruit, from a database.
 -Store the value in a variable.
 -Load the Values into a database.
--Repeate the process.
+-Repeat the process.
 '''
 class user_interface_window:
     def __init__(self, master):
