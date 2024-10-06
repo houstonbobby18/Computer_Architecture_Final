@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 import os
+from time import sleep
 
 from PIL import Image, ImageTk
 
@@ -110,5 +111,9 @@ def run():
             os.remove("fruit_database.csv")
         conn , cursor = fi.connect_database()
         fi.export_database(conn, cursor)
-        messagebox.showinfo("Export Database", "Database has been exported to 'fruit_database.csv'")
+        messagebox.showinfo("Export Database", "Database has been exported to 'fruits_inventory.csv'")
+        # Open csv with excel
+        # sleep(1)
+        file_dir = os.path.abspath("fruits_inventory.csv")
+        os.system("start excel.exe " + file_dir)
 
