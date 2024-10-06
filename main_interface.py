@@ -98,16 +98,17 @@ class user_interface_window:
         conn , cursor = fi.connect_database()
         fruit_id = fi.add_fruit(conn, cursor, self.filename, expiration_date, guessed_fruit, fruit_name)
 
-root = tk.Tk()
-app = user_interface_window(root)
-root.mainloop()
+def run():
+    root = tk.Tk()
+    app = user_interface_window(root)
+    root.mainloop()
 
-# Create Message Box
-result = messagebox.askyesno("Export Database", "Would you like to export the database?")
-if result:
-    if os.path.exists("fruit_database.csv"):
-        os.remove("fruit_database.csv")
-    conn , cursor = fi.connect_database()
-    fi.export_database(conn, cursor)
-    messagebox.showinfo("Export Database", "Database has been exported to 'fruit_database.csv'")
+    # Create Message Box
+    result = messagebox.askyesno("Export Database", "Would you like to export the database?")
+    if result:
+        if os.path.exists("fruit_database.csv"):
+            os.remove("fruit_database.csv")
+        conn , cursor = fi.connect_database()
+        fi.export_database(conn, cursor)
+        messagebox.showinfo("Export Database", "Database has been exported to 'fruit_database.csv'")
 
