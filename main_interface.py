@@ -7,7 +7,9 @@ from PIL import Image, ImageTk
 
 import fruit_name_model
 import misc_functions as mf
-import spinbox_window
+import fruit_duration as fd
+import fruit_inventory as fi
+
 # GitHub Copilot was used alongside the creation of this project.
 
 '''
@@ -27,53 +29,91 @@ Objectives of this GUI:
 -Repeate the process.
 '''
 
-possible_fruits = mf.get_fruit_index_names()
+
 
 class user_interface_window:
     def __init__(self, master):
+        self.possible_fruits = mf.get_fruit_index_names()
         self.master = master
-        self.master.title("Fruit Classifier")
+        self.master.title("Fruit Classifier Database")
         self.master.geometry("800x800")
         self.master.resizable(False, False)
-        self.real_fruit = ""
+        self.storage_methods = ["Counter", "Pantry", "Fridge", "Freezer"]
 
+
+        self.fruit_duration = fd.fruit_table()
         # Create a frame
         self.frame = tk.Frame(self.master)
         self.frame.pack()
 
-        # Create a label
-        self.label = tk.Label(self.frame, text="Upload a photo of a fruit")
-        self.label.pack()
-
-        # Create a button
-        self.button = tk.Button(self.frame, text="Upload", command=self.upload)
-        self.button.pack()
-
-        self.button2 = tk.Button(self.frame, text="Submit", command=self.submit)
-        self.button2.pack()
-
-    def upload(self):
-        self.filename = tk.filedialog.askopenfilename(initialdir="/", title="Select a file", filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+        # Load test image
+        self.filename = r"new_files\\test.jpg"
         self.image = Image.open(self.filename)
         self.image.thumbnail((300, 300))
         self.photo = ImageTk.PhotoImage(self.image)
-        self.label2 = tk.Label(self.frame, image=self.photo)
-        self.label2.pack()
+        self.gui_image = tk.Label(self.frame, image=self.photo)
+        self.gui_image.grid(row=0, column=1)
+
+        # Create upload button
+        self.button = tk.Button(self.frame, text="Upload", command=self.upload)
+        self.button.grid(row=1, column=1)
+
+        # Create Fruit Name Option Menu
+        self.fruit_name = tk.StringVar(self.master)
+        self.fruit_name.set(self.possible_fruits[0])
+        self.fruit_name_label = tk.Label(self.frame, text="Please select the correct fruit: ")
+        self.fruit_name_label.grid(row=2, column=0)
+        self.fruit_name_dropdown = tk.OptionMenu(self.frame, self.fruit_name, *self.possible_fruits)
+        self.fruit_name_dropdown.grid(row=3, column=0)
+
+        # Create Storage Method Option Menu
+        self.storage_method = tk.StringVar(self.master)
+        self.storage_method.set(self.storage_methods[0])
+        self.storage_method_label = tk.Label(self.frame, text="How will the fruit be stored?")
+        self.storage_method_label.grid(row=2, column=1)
+        self.storage_method_dropdown = tk.OptionMenu(self.frame, self.storage_method, *self.storage_methods)
+        self.storage_method_dropdown.grid(row=3, column=1)
+
+        # Create Submit Button
+        self.submit_button = tk.Button(self.frame, text="Submit", command=self.submit)
+        self.submit_button.grid(row=3, column=2)
+
+    def upload(self):
+        self.filename = filedialog.askopenfilename(initialdir="/", title="Select a file", filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+        self.image = Image.open(self.filename)
+        self.image.thumbnail((300, 300))
+        self.photo = ImageTk.PhotoImage(self.image)
+        self.gui_image = tk.Label(self.frame, image=self.photo)
+        self.gui_image.grid(row=0, column=1)
         guessed_fruit = fruit_name_model.run_model(self.filename)
         msg = f"Detected fruit: {guessed_fruit}\nIs the detected fruit correct?"
         # Creates msg box
         result = messagebox.askyesno("Fruit Classifier", msg)
         if result:
-            self.real_fruit = guessed_fruit
-        else:
-            self.real_fruit = spinbox_window.get_fruit_name()
+            self.fruit_name.set(guessed_fruit)
+
 
     def submit(self):
-        storage_method = spinbox_window.get_storage_method()
-        print(f"Real fruit: {self.real_fruit}")
-        print(f"Storage method: {storage_method}")
+        # Get the values from the option menus
+        fruit_name = self.fruit_name.get()
+        storage_method = self.storage_method.get()
+        storage_method = self.storage_methods.index(storage_method)
+        expiration_date = self.fruit_duration.get_duration_values(fruit_name)[storage_method]
+        guessed_fruit = fruit_name_model.run_model(self.filename)
+        # Load the values into a database
+        conn , cursor = fi.connect_database()
+        fruit_id = fi.add_fruit(conn, cursor, self.filename, expiration_date, guessed_fruit, fruit_name)
+        print(fruit_id)
+
+
+
+
 
 
 root = tk.Tk()
 app = user_interface_window(root)
+
 root.mainloop()
+
+
+

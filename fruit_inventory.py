@@ -55,5 +55,26 @@ if __name__ == '__main__':
     create_database()
     conn, cursor = connect_database()
 
+    # Add a fruit
+    picture_name = 'test.jpg'
+    exp_date = 5
+    predicted_fruit = 'apple'
+    real_fruit = 'apple'
+    id = add_fruit(conn, cursor, picture_name, exp_date, predicted_fruit, real_fruit)
+    print(f"Fruit added with ID: {id}")
+
+    # Get all fruits
+    fruits = get_all_fruits(conn, cursor)
+    print(fruits)
+
+    # Pop a fruit
+    pop_fruit(conn, cursor, id)
+    print('Fruit popped')
+
+    # Get all fruits
+    fruits = get_all_fruits(conn, cursor)
+    print(fruits)
+
+
 
 
