@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import time
+import pandas as pd
 
 def create_database():
     '''
@@ -49,6 +50,13 @@ def get_all_fruits(conn, cursor):
     '''
     cursor.execute('SELECT * FROM fruits_inventory')
     return cursor.fetchall()
+
+def export_database(conn, cursor):
+    '''
+    Exports the database to a CSV
+    '''
+    df = pd.read_sql_query('SELECT * FROM fruits_inventory', conn)
+    df.to_csv('fruits_inventory.csv', index=False)
 
 if __name__ == '__main__':
     # Connect to the database

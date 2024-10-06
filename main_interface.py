@@ -28,9 +28,6 @@ Objectives of this GUI:
 -Load the Values into a database.
 -Repeate the process.
 '''
-
-
-
 class user_interface_window:
     def __init__(self, master):
         self.possible_fruits = mf.get_fruit_index_names()
@@ -39,8 +36,6 @@ class user_interface_window:
         self.master.geometry("800x800")
         self.master.resizable(False, False)
         self.storage_methods = ["Counter", "Pantry", "Fridge", "Freezer"]
-
-
         self.fruit_duration = fd.fruit_table()
         # Create a frame
         self.frame = tk.Frame(self.master)
@@ -92,7 +87,6 @@ class user_interface_window:
         if result:
             self.fruit_name.set(guessed_fruit)
 
-
     def submit(self):
         # Get the values from the option menus
         fruit_name = self.fruit_name.get()
@@ -103,17 +97,17 @@ class user_interface_window:
         # Load the values into a database
         conn , cursor = fi.connect_database()
         fruit_id = fi.add_fruit(conn, cursor, self.filename, expiration_date, guessed_fruit, fruit_name)
-        print(fruit_id)
-
-
-
-
-
 
 root = tk.Tk()
 app = user_interface_window(root)
-
 root.mainloop()
 
-
+# Create Message Box
+result = messagebox.askyesno("Export Database", "Would you like to export the database?")
+if result:
+    if os.path.exists("fruit_database.csv"):
+        os.remove("fruit_database.csv")
+    conn , cursor = fi.connect_database()
+    fi.export_database(conn, cursor)
+    messagebox.showinfo("Export Database", "Database has been exported to 'fruit_database.csv'")
 
