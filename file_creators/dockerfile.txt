@@ -1,0 +1,11 @@
+FROM python:latest
+LABEL maintainer="Bobby Houston"
+
+WORKDIR /usr/src/app
+
+RUN pip install --upgrade pip
+RUN pip install --requirement requirements.txt
+
+COPY . .
+
+CMD [ "python", "./main.py" ]
